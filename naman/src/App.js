@@ -59,80 +59,133 @@ function Computer() {
 
 
 
-
-
-function Article (props) {
-  return <article>
-
-    <h2>{props.title}</h2>
-  {props.body}
-  </article>
-}
-
-
-
 function Modal({ onClose }) {
-  const [posts, setPosts] = useState([]);
-  const [inputValue, setInputValue] = useState('');
-  const [editIndex, setEditIndex] = useState(null);
+  const [posts, setPosts] = useState([]); // 게시글 상태 관리
+  const [addInputValue, setAddInputValue] = useState(''); // 게시글 추가 입력값 상태
+  const [editInputValue, setEditInputValue] = useState(''); // 수정 입력값 상태
+  const [editIndex, setEditIndex] = useState(null); // 수정할 게시글의 인덱스
+  const [comments, setComments] = useState([]) //댓글
+  const [currentCommentInput, setCurCommentInput] = useState('');
+  const [openCommentIndex, setOpenCommentIndex] = useState(null); // 열려 있는 댓글 인덱스 관리
 
-  const handleAddOrEditPost = () => {
-    if (editIndex !== null) {
-      const updatedPosts = [...posts];
-      updatedPosts[editIndex] = inputValue;
-      setPosts(updatedPosts);
-      setEditIndex(null);
-    } else {
-      setPosts([...posts, inputValue]);
-  }
-  setInputValue('');
+  const handleAddPost = () => {
+    if (addInputValue) {
+      setPosts([...posts, addInputValue]); // 게시글 추가
+      setAddInputValue(''); // 입력 필드 초기화
+      setComments([...comments, []])
+    }
   };
-  
+
+  const handleToggleComments = (index) => {
+    setOpenCommentIndex(openCommentIndex === index ? null : index); // 댓글 토글
+};
+
+
   const handleDeletePost = (index) => {
-    const updatedPosts = posts.filter((_, i) => i != index);
-    setPosts(updatedPosts);
+    const updatedPosts = posts.filter((_, i) => i !== index);
+    const updatedComments = comments.filter((_, i) => i !== index);
+    setPosts(updatedPosts); // 게시글 삭제
+    setComments(updatedComments);
   };
 
   const handleEditPost = (index) => {
-    setInputValue(posts[index]);
-    setEditIndex(index);
+    setEditInputValue(posts[index]); // 수정할 게시글의 내용 인풋 박스에 표시
+    setEditIndex(index); // 수정할 인덱스 설정
+  };
+
+  const handleUpdatePost = () => {
+    if (editIndex !== null && editInputValue) {
+      const updatedPosts = [...posts];
+      updatedPosts[editIndex] = editInputValue; // 수정된 내용으로 업데이트
+      setPosts(updatedPosts);
+      setEditInputValue(''); // 입력 필드 초기화
+      setEditIndex(null); // 수정 인덱스 초기화
+    }
   };
 
 
+  const handleAddComment = (postIndex) => {
+    if (currentCommentInput) {
+      const updatedComments = [...comments];
+      updatedComments[postIndex] = [...updatedComments[postIndex], currentCommentInput]; // 댓글 추가
+      setComments(updatedComments);
+      setCurCommentInput(''); // 입력 필드 초기화
+    }
+  };
 
+  const handleDeleteComment = (postIndex, commentIndex) => {
+    const updatedComments = [...comments];
+    updatedComments[postIndex] = updatedComments[postIndex].filter((_, i) => i !== commentIndex); // 댓글 삭제
+    setComments(updatedComments);
+  };
 
 
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
-          <span className="modal-title">게시판</span>
-          <button className="modal-close" onClick={onClose}>✖</button>
+        <div className="modal-content">
+            <div className="modal-header">
+                <span className="modal-title">게시판</span>
+                <button className="modal-close" onClick={onClose}>✖</button>
+            </div>
+            <div className="modal-body">
+                <div className="post-section">
+                    <input
+                        type="text"
+                        value={addInputValue}
+                        onChange={(e) => setAddInputValue(e.target.value)}
+                        placeholder="게시글을 입력하세요"
+                    />
+                    <button onClick={handleAddPost}>추가</button>
+                    <ul>
+                        {posts.map((post, index) => (
+                            <li key={index}>
+                                <div>
+                                    <span onClick={() => handleToggleComments(index)} style={{ cursor: 'pointer' }}>{post}</span>
+                                    <button onClick={() => handleDeletePost(index)}>삭제</button>
+                                    <button onClick={() => handleEditPost(index)}>수정</button>
+                                </div>
+                                {editIndex === index ? (
+                                    <>
+                                        <input 
+                                            type="text"
+                                            value={editInputValue} // 수정할 게시글 내용을 인풋 박스에 표시
+                                            onChange={(e) => setEditInputValue(e.target.value)}
+                                            placeholder="수정할 내용을 입력하세요"
+                                        />
+                                        <button onClick={handleUpdatePost}>수정 완료</button>
+                                    </>
+                                ) : null}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {/* 댓글 섹션은 오른쪽에 배치 */}
+                <div className="comment-section">
+                    <h4>댓글:</h4>
+                    {openCommentIndex !== null && comments[openCommentIndex]?.map((comment, commentIndex) => (
+                        <div key={commentIndex}>
+                            <span>{comment}</span>
+                            <button onClick={() => handleDeleteComment(openCommentIndex, commentIndex)}>삭제</button>
+                        </div>
+                    ))}
+                    {openCommentIndex !== null && (
+                        <div className="comment-input-container">
+                            <input
+                                type="text"
+                                value={currentCommentInput}
+                                onChange={(e) => setCurCommentInput(e.target.value)}
+                                placeholder="댓글을 입력하세요"
+                            />
+                            <button onClick={() => handleAddComment(openCommentIndex)}>댓글 추가</button>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-        <div className="modal-body">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder = "게시글을 입력하세요"
-          />
-          <button onClick={handleAddOrEditPost}>
-            {editIndex !== null ? '수정': '추가'}
-          </button>
-          <ul>
-            {posts.map((post, index)=> (
-              <li key= {index}>
-                {post}
-                <button onClick={()=> handleEditPost(index)}> 수정</button>
-                <button onClick={() => handleDeletePost(index)}> 삭제</button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
     </div>
-  );
+);
 }
 
 
