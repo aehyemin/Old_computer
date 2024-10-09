@@ -56,7 +56,53 @@ function Computer() {
   );
 }
 
+
+
+
+
+
+function Article (props) {
+  return <article>
+
+    <h2>{props.title}</h2>
+  {props.body}
+  </article>
+}
+
+
+
 function Modal({ onClose }) {
+  const [posts, setPosts] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [editIndex, setEditIndex] = useState(null);
+
+  const handleAddOrEditPost = () => {
+    if (editIndex !== null) {
+      const updatedPosts = [...posts];
+      updatedPosts[editIndex] = inputValue;
+      setPosts(updatedPosts);
+      setEditIndex(null);
+    } else {
+      setPosts([...posts, inputValue]);
+  }
+  setInputValue('');
+  };
+  
+  const handleDeletePost = (index) => {
+    const updatedPosts = posts.filter((_, i) => i != index);
+    setPosts(updatedPosts);
+  };
+
+  const handleEditPost = (index) => {
+    setInputValue(posts[index]);
+    setEditIndex(index);
+  };
+
+
+
+
+
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -65,7 +111,24 @@ function Modal({ onClose }) {
           <button className="modal-close" onClick={onClose}>✖</button>
         </div>
         <div className="modal-body">
-          <p>여기에 원하는 내용을 입력하세요!</p>
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder = "게시글을 입력하세요"
+          />
+          <button onClick={handleAddOrEditPost}>
+            {editIndex !== null ? '수정': '추가'}
+          </button>
+          <ul>
+            {posts.map((post, index)=> (
+              <li key= {index}>
+                {post}
+                <button onClick={()=> handleEditPost(index)}> 수정</button>
+                <button onClick={() => handleDeletePost(index)}> 삭제</button>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
