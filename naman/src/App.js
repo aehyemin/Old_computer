@@ -1,5 +1,6 @@
 //import 아이맥 from '/Users/hahyemin/react_test2/naman/public/아이맥.png';
 import './App.css';
+import React, { useState } from 'react';
 
 function TopBar() {
   const handleButtonClick = (buttonName) => {
@@ -28,32 +29,50 @@ function TopBar() {
 
 
 function Computer() {
-  const handleIconDoubleClick = () => { // 수정된 부분
-    window.open('', '_blank', 'width=600,height=400'); // 빈 팝업 창을 열기
+  const [isOpen, setIsOpen] = useState(false); // 팝업 상태 관리
+
+  const handleIconDoubleClick = () => {
+    setIsOpen(true); // 모달 창 열기
   };
 
-  return(
+  const closePopup = () => {
+    setIsOpen(false); // 모달 창 닫기
+  };
+
+  return (
     <div className="computer-box">
       <div className="computer-sea">
-        <div className= "folder-container" onDoubleClick={handleIconDoubleClick}>
-        <img src={`${process.env.PUBLIC_URL}/assets/파일폴더.png`} alt="아이콘" className="folder-icon" />
-        <p className="folder-label">게시판</p>
+        <div className="folder-container" onDoubleClick={handleIconDoubleClick}>
+          <img
+            src={`${process.env.PUBLIC_URL}/assets/파일폴더.png`}
+            alt="아이콘"
+            className="folder-icon"
+          />
+          <p className="folder-label">게시판 </p>
         </div>
-        </div>
-     </div>
-
-  
+      </div>
+      {isOpen && <Modal onClose={closePopup} />} {/* 모달 창 열기 */}
+    </div>
   );
 }
 
-function Content() {
+function Modal({ onClose }) {
   return (
-    <div className="content-area">
-      <h2>컴퓨터화면</h2>
-      <p>여기에 요소를 배치</p>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <span className="modal-title">게시판</span>
+          <button className="modal-close" onClick={onClose}>✖</button>
+        </div>
+        <div className="modal-body">
+          <p>여기에 원하는 내용을 입력하세요!</p>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
+
+
 
 
 function App() {
