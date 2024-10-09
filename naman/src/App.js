@@ -140,22 +140,23 @@ function Modal({ onClose }) {
                     <ul>
                         {posts.map((post, index) => (
                             <li key={index}>
-                                <div>
-                                    <span onClick={() => handleToggleComments(index)} style={{ cursor: 'pointer' }}>{post}</span>
-                                    <button onClick={() => handleDeletePost(index)}>삭제</button>
-                                    <button onClick={() => handleEditPost(index)}>수정</button>
-                                </div>
-                                {editIndex === index ? (
+                                {editIndex === index ? ( // 수정 중일 때
                                     <>
-                                        <input 
+                                        <input
                                             type="text"
-                                            value={editInputValue} // 수정할 게시글 내용을 인풋 박스에 표시
+                                            value={editInputValue}
                                             onChange={(e) => setEditInputValue(e.target.value)}
                                             placeholder="수정할 내용을 입력하세요"
                                         />
                                         <button onClick={handleUpdatePost}>수정 완료</button>
                                     </>
-                                ) : null}
+                                ) : (
+                                    <div>
+                                        <span onClick={() => handleToggleComments(index)} style={{ cursor: 'pointer' }}>{post}</span>
+                                        <button onClick={() => handleDeletePost(index)}>삭제</button>
+                                        <button onClick={() => handleEditPost(index)}>수정</button>
+                                    </div>
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -163,13 +164,8 @@ function Modal({ onClose }) {
 
                 {/* 댓글 섹션은 오른쪽에 배치 */}
                 <div className="comment-section">
-                    <h4>댓글:</h4>
-                    {openCommentIndex !== null && comments[openCommentIndex]?.map((comment, commentIndex) => (
-                        <div key={commentIndex}>
-                            <span>{comment}</span>
-                            <button onClick={() => handleDeleteComment(openCommentIndex, commentIndex)}>삭제</button>
-                        </div>
-                    ))}
+                    <h5>댓글:</h5>
+                   
                     {openCommentIndex !== null && (
                         <div className="comment-input-container">
                             <input
@@ -181,6 +177,12 @@ function Modal({ onClose }) {
                             <button onClick={() => handleAddComment(openCommentIndex)}>댓글 추가</button>
                         </div>
                     )}
+                     {openCommentIndex !== null && comments[openCommentIndex]?.map((comment, commentIndex) => (
+                        <div key={commentIndex}>
+                            <span>{comment}</span>
+                            <button onClick={() => handleDeleteComment(openCommentIndex, commentIndex)}>삭제</button>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
